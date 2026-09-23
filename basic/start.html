@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快速开始 — 静态网站构建器</title>
+<meta name="description" content="5 分钟跑通一个最小示例：写内容、准备模板、发布前注入。">
+<style>
+  body {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+    font-family: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    line-height: 1.75;
+    color: #1e293b;
+    background: #ffffff;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1 {
+    font-size: 32px;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+    color: #0f172a;
+  }
+  h2 {
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    margin: 44px 0 14px;
+    color: #0f172a;
+  }
+  h3 {
+    font-size: 16px;
+    margin: 28px 0 10px;
+    color: #0f172a;
+  }
+  p { margin: 0 0 14px; }
+  ul, ol { padding-left: 22px; margin: 0 0 16px; }
+  li { margin: 6px 0; }
+  strong { color: #0f172a; }
+  a { color: #4f46e5; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .lede {
+    font-size: 17px;
+    color: #64748b;
+    margin: 0 0 36px;
+  }
+
+  /* 行内代码 */
+  code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.88em;
+    color: #0f172a;
+  }
+
+  /* 代码块 */
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 20px;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin: 14px 0 20px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+  /* 语法高亮 */
+  pre .p { color: #64748b; }              /* 标点 < > / = { } ; : */
+  pre .t { color: #f472b6; }              /* HTML 标签 */
+  pre .a { color: #7dd3fc; }              /* 属性名 / CSS 属性 */
+  pre .s { color: #fcd34d; }              /* 属性值 / CSS 值 */
+  pre .g { color: #86efac; }              /* CSS 选择器 */
+  pre .c { color: #64748b; font-style: italic; }  /* 注释 */
+
+  /* 提示框 */
+  .callout {
+    border-left: 3px solid #4f46e5;
+    background: #f5f7ff;
+    padding: 14px 18px;
+    border-radius: 0 10px 10px 0;
+    margin: 18px 0;
+    color: #3730a3;
+    font-size: 14px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* 步骤列表 */
+  .steps {
+    counter-reset: s;
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 32px;
+  }
+  .steps > li {
+    position: relative;
+    padding-left: 44px;
+    margin-bottom: 22px;
+  }
+  .steps > li::before {
+    counter-increment: s;
+    content: counter(s);
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #4f46e5;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .steps > li > strong {
+    display: block;
+    margin-bottom: 2px;
+  }
+  .steps > li > p { margin: 0; }
+
+  /* 底部导航 */
+  .next {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<article>
+
+  <h1>快速开始</h1>
+  <p class="lede">5 分钟跑通一个最小示例：写内容 → 准备模板 → 发布前注入。</p>
+
+  <h2>你需要什么</h2>
+  <ul>
+    <li>一个能编辑 HTML 的编辑器。</li>
+    <li>一个支持声明式 Shadow DOM 的浏览器（Chrome 111+ / Edge 111+ / Safari 16.4+ / Firefox 123+）。</li>
+    <li>你的网站现有的发布流程——不需要引入任何新工具。</li>
+  </ul>
+
+  <div class="callout">
+    这个方案不依赖构建器、不依赖运行时。你要做的只是<strong>在发布前，把一段固定的 HTML 片段插到每个页面的 <code>&lt;/body&gt;</code> 之前</strong>。
+  </div>
+
+  <h2>三步走</h2>
+
+  <ol class="steps">
+    <li>
+      <strong>写页面内容</strong>
+      <p>让 AI（或你自己）生成页面，只保留正文部分。<strong>不要写 header、侧边栏、footer</strong>——这些属于模板。</p>
+    </li>
+    <li>
+      <strong>准备一份模板</strong>
+      <p>把站点的标题、导航、页脚写进一个 <code>&lt;template shadowrootmode="open"&gt;</code> 里，中间留一个 <code>&lt;slot&gt;</code> 作为内容投影口。整站只需要这一份。</p>
+    </li>
+    <li>
+      <strong>发布前注入</strong>
+      <p>在你的发布流程里，把模板片段插入每个 HTML 的 <code>&lt;/body&gt;</code> 之前。手动、脚本、CI 都行。</p>
+    </li>
+  </ol>
+
+  <h2>最小示例</h2>
+
+  <h3>1. 页面文件 <code>about.html</code></h3>
+  <p>注意：没有 header、没有导航、没有 footer。样式也只为正文服务。</p>
+
+  <pre><code><span class="c">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="t">html</span> <span class="a">lang</span><span class="p">=</span><span class="s">"zh-CN"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="t">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="t">meta</span> <span class="a">charset</span><span class="p">=</span><span class="s">"UTF-8"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="t">title</span><span class="p">&gt;</span>关于我们<span class="p">&lt;/</span><span class="t">title</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="t">style</span><span class="p">&gt;</span>
+    <span class="g">article</span> <span class="p">{</span>
+      <span class="a">max-width</span><span class="p">:</span> <span class="s">720px</span><span class="p">;</span>
+      <span class="a">margin</span><span class="p">:</span> <span class="s">0 auto</span><span class="p">;</span>
+      <span class="a">padding</span><span class="p">:</span> <span class="s">40px 24px</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="g">h1</span> <span class="p">{</span> <span class="a">font-size</span><span class="p">:</span> <span class="s">28px</span><span class="p">;</span> <span class="p">}</span>
+  <span class="p">&lt;/</span><span class="t">style</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="t">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="t">body</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="t">article</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="t">h1</span><span class="p">&gt;</span>关于我们<span class="p">&lt;/</span><span class="t">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="t">p</span><span class="p">&gt;</span>我们是一支专注于静态网站的小团队。<span class="p">&lt;/</span><span class="t">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="t">article</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="t">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="t">html</span><span class="p">&gt;</span></code></pre>
+
+  <h3>2. 模板片段 <code>site-template.txt</code></h3>
+  <p>整站共用一份。<code>&lt;slot&gt;</code> 的位置决定了页面内容出现在哪里。</p>
+
+  <pre><code><span class="p">&lt;</span><span class="t">template</span> <span class="a">shadowrootmode</span><span class="p">=</span><span class="s">"open"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="t">style</span><span class="p">&gt;</span>
+    <span class="g">:host</span> <span class="p">{</span> <span class="a">display</span><span class="p">:</span> <span class="s">block</span><span class="p">;</span> <span class="a">font-family</span><span class="p">:</span> <span class="s">system-ui, sans-serif</span><span class="p">;</span> <span class="p">}</span>
+    <span class="g">header</span> <span class="p">{</span> <span class="a">padding</span><span class="p">:</span> <span class="s">16px 24px</span><span class="p">;</span> <span class="a">border-bottom</span><span class="p">:</span> <span class="s">1px solid #e2e8f0</span><span class="p">;</span> <span class="p">}</span>
+    <span class="g">nav a</span> <span class="p">{</span> <span class="a">margin-right</span><span class="p">:</span> <span class="s">16px</span><span class="p">;</span> <span class="p">}</span>
+    <span class="g">footer</span> <span class="p">{</span> <span class="a">padding</span><span class="p">:</span> <span class="s">24px</span><span class="p">;</span> <span class="a">text-align</span><span class="p">:</span> <span class="s">center</span><span class="p">;</span> <span class="a">color</span><span class="p">:</span> <span class="s">#94a3b8</span><span class="p">;</span> <span class="p">}</span>
+  <span class="p">&lt;/</span><span class="t">style</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="t">header</span><span class="p">&gt;</span>我的网站<span class="p">&lt;/</span><span class="t">header</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="t">nav</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="t">a</span> <span class="a">href</span><span class="p">=</span><span class="s">"/"</span><span class="p">&gt;</span>首页<span class="p">&lt;/</span><span class="t">a</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="t">a</span> <span class="a">href</span><span class="p">=</span><span class="s">"/about.html"</span><span class="p">&gt;</span>关于<span class="p">&lt;/</span><span class="t">a</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="t">nav</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="t">slot</span><span class="p">&gt;&lt;/</span><span class="t">slot</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="t">footer</span><span class="p">&gt;</span>© 2026 我的网站<span class="p">&lt;/</span><span class="t">footer</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="t">template</span><span class="p">&gt;</span></code></pre>
+
+  <h3>3. 注入后的 <code>about.html</code></h3>
+  <p>就是在 <code>&lt;/body&gt;</code> 之前多了一段。页面内容和模板都不用改。</p>
+
+  <pre><code><span class="p">&lt;</span><span class="t">body</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="t">article</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="t">h1</span><span class="p">&gt;</span>关于我们<span class="p">&lt;/</span><span class="t">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="t">p</span><span class="p">&gt;</span>我们是一支专注于静态网站的小团队。<span class="p">&lt;/</span><span class="t">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="t">article</span><span class="p">&gt;</span>
+
+  <span class="c">&lt;!-- 注入的模板 --&gt;</span>
+  <span class="p">&lt;</span><span class="t">template</span> <span class="a">shadowrootmode</span><span class="p">=</span><span class="s">"open"</span><span class="p">&gt;</span>
+    …
+  <span class="p">&lt;/</span><span class="t">template</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="t">body</span><span class="p">&gt;</span></code></pre>
+
+  <h2>验证一下</h2>
+  <p>用浏览器打开这个文件，你会看到：</p>
+  <ul>
+    <li>页面顶部有统一的网站标题和导航。</li>
+    <li>中间是"关于我们"的正文。</li>
+    <li>底部是统一的版权信息。</li>
+    <li>而且——页面里那段 <code>article { max-width: 720px }</code>，不会影响模板里的 header 和 footer。</li>
+  </ul>
+
+  <div class="callout">
+    <strong>独立打开也没问题。</strong>注入前，每个页面都是一个完整、能直接阅读的 HTML；注入后，它自动获得站点级的布局与风格。两种状态都不冲突。
+  </div>
+
+  <h2>什么时候注入？</h2>
+  <p>任何"文件将要被发布出去"的时刻都可以：</p>
+  <ul>
+    <li><strong>手动</strong>：复制粘贴模板片段，适合页面很少的场景。</li>
+    <li><strong>脚本</strong>：写一个几行的 Node / Python 脚本，遍历目录、在每个 <code>&lt;/body&gt;</code> 前插入。</li>
+    <li><strong>构建链路</strong>：接到你的 CI/CD、静态站点生成器或部署脚本里。</li>
+  </ul>
+  <p>具体写法见 <a href="inject.html">如何注入</a>。</p>
+
+  <h2>常见疑问</h2>
+
+  <h3>浏览器兼容性如何？</h3>
+  <p>声明式 Shadow DOM（<code>shadowrootmode</code> 属性）在 Chrome / Edge 111+、Safari 16.4+、Firefox 123+ 均已支持。旧浏览器会忽略 <code>&lt;template&gt;</code>，页面仍能显示内容，只是没有站点布局。</p>
+
+  <h3>会不会影响 SEO？</h3>
+  <p>不会。页面内容和模板都在同一个 HTML 文档里，爬虫能看到全部内容。这也是它比 iframe 更适合静态站的原因。</p>
+
+  <h3>样式真的不会互相污染吗？</h3>
+  <p>是的，双向隔离。唯一会穿透的是可继承属性（如 <code>color</code>、<code>font-family</code>）和 CSS 自定义属性。详见 <a href="concept.html">核心概念</a>。</p>
+
+  <div class="next">
+    下一步 → <a href="page-structure.html">页面怎么写</a>
+  </div>
+
+</article>
+
+</body>
+</html>
