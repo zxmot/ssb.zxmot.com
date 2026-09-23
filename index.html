@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>静态网站构建器 — Static Site Builder, and with AI</title>
+<meta name="description" content="让 AI 自由创作内容，让模板统一站点风格。基于浏览器原生 Shadow DOM 的静态网站构建方案，零构建、零运行时、样式天然隔离。">
+<style>
+  :root {
+    --fg: #0f172a;
+    --muted: #64748b;
+    --accent: #4f46e5;
+    --accent-2: #7c3aed;
+    --border: #e2e8f0;
+    --soft: #f8fafc;
+    --code-bg: #0f172a;
+    --code-fg: #e2e8f0;
+    --radius: 14px;
+    --maxw: 1080px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    color: var(--fg); background: #fff; line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  /* header */
+  .site-head {
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: var(--maxw); margin: 0 auto; padding: 18px 24px;
+  }
+  .site-head .brand { display: inline-flex; align-items: baseline; gap: 8px; font-weight: 700; color: var(--fg); }
+  .site-head .brand small { font-weight: 400; font-size: 12px; color: #94a3b8; }
+  .site-head nav a { margin-left: 20px; font-size: 14px; color: var(--muted); }
+  .site-head nav a:hover { color: var(--fg); text-decoration: none; }
+
+  /* hero */
+  .hero {
+    position: relative; text-align: center;
+    padding: 88px 0 64px;
+    background:
+      radial-gradient(60% 60% at 50% 0%, #eef2ff 0%, transparent 70%),
+      radial-gradient(40% 40% at 80% 20%, #f5f3ff 0%, transparent 70%);
+  }
+  .hero h1 {
+    margin: 0 0 8px;
+    font-size: clamp(34px, 6vw, 60px);
+    line-height: 1.1; letter-spacing: -0.02em;
+  }
+  .hero h1 .main {
+    display: block;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero h1 .sub {
+    display: block; margin-top: 6px;
+    font-size: clamp(16px, 2.2vw, 22px);
+    font-weight: 400; color: var(--muted);
+    letter-spacing: 0;
+  }
+  .hero p.lede {
+    max-width: 640px; margin: 24px auto 0;
+    font-size: 17px; color: #475569;
+  }
+  .cta { margin-top: 36px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 11px 22px; border-radius: 10px;
+    font-size: 15px; font-weight: 600; border: 1px solid transparent;
+    transition: transform .05s ease, box-shadow .2s ease;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 8px 20px -8px rgba(79,70,229,.6); }
+  .btn-primary:hover { text-decoration: none; background: #4338ca; }
+  .btn-ghost { background: #fff; color: var(--fg); border-color: var(--border); }
+  .btn-ghost:hover { text-decoration: none; background: var(--soft); }
+
+  /* section */
+  section { padding: 72px 0; }
+  section h2 {
+    font-size: 28px; letter-spacing: -0.01em; margin: 0 0 12px;
+  }
+  section .sub { color: var(--muted); margin: 0 0 40px; }
+
+  /* pain / solution */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px; background: #fff;
+  }
+  .card.bad { background: #fff7f7; border-color: #fecaca; }
+  .card.good { background: #f5f7ff; border-color: #c7d2fe; }
+  .card h3 { margin: 0 0 10px; font-size: 17px; }
+  .card p { margin: 0; color: #475569; font-size: 15px; }
+
+  /* mechanism */
+  .mechanism { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  pre.code {
+    margin: 0; padding: 20px; border-radius: var(--radius);
+    background: var(--code-bg); color: var(--code-fg);
+    font-size: 13px; line-height: 1.6; overflow-x: auto;
+  }
+  pre.code .c { color: #94a3b8; }
+  pre.code .t { color: #f472b6; }
+  pre.code .a { color: #7dd3fc; }
+  pre.code .s { color: #fcd34d; }
+  .mechanism .note { margin-top: 14px; font-size: 14px; color: var(--muted); }
+
+  /* features */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .feature {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px; background: #fff;
+  }
+  .feature .ico {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: grid; place-items: center; font-size: 18px;
+    background: var(--soft); margin-bottom: 14px;
+  }
+  .feature h3 { margin: 0 0 8px; font-size: 16px; }
+  .feature p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  /* steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: step; }
+  .step { position: relative; padding: 24px; border: 1px solid var(--border); border-radius: var(--radius); }
+  .step::before {
+    counter-increment: step; content: counter(step);
+    display: inline-grid; place-items: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: 13px; font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .step h3 { margin: 0 0 8px; font-size: 16px; }
+  .step p { margin: 0; color: var(--muted); font-size: 14px; }
+  .step code { background: var(--soft); padding: 2px 6px; border-radius: 5px; font-size: 13px; }
+
+  /* docs */
+  .docgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .doc {
+    display: block; padding: 20px; border: 1px solid var(--border);
+    border-radius: var(--radius); background: #fff; color: var(--fg);
+  }
+  .doc:hover { text-decoration: none; border-color: #c7d2fe; background: #fafaff; }
+  .doc h3 { margin: 0 0 6px; font-size: 15px; }
+  .doc p { margin: 0; color: var(--muted); font-size: 13px; }
+
+  footer.site-foot {
+    border-top: 1px solid var(--border);
+    padding: 28px 24px; text-align: center;
+    color: var(--muted); font-size: 13px;
+  }
+
+  @media (max-width: 860px) {
+    .compare, .mechanism, .features, .steps, .docgrid { grid-template-columns: 1fr; }
+    .hero { padding: 56px 0 40px; }
+    section { padding: 52px 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="brand" href="index.html">静态网站构建器 <small>Static Site Builder</small></a>
+  <nav>
+    <a href="quick-start.html">快速开始</a>
+    <a href="concept.html">核心概念</a>
+    <a href="faq.html">FAQ</a>
+  </nav>
+</header>
+
+<main class="content">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="wrap">
+      <h1>
+        <span class="main">Static Site Builder</span>
+        <span class="sub">and with AI</span>
+      </h1>
+      <p class="lede">
+        让 AI 自由创作内容，让模板统一站点风格。<br>
+        基于浏览器原生 Shadow DOM，零构建、零运行时、样式天然隔离。
+      </p>
+      <div class="cta">
+        <a class="btn btn-primary" href="quick-start.html">快速开始</a>
+        <a class="btn btn-ghost" href="concept.html">了解原理</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 痛点 vs 方案 -->
+  <section>
+    <div class="wrap">
+      <h2>为什么需要它</h2>
+      <p class="sub">AI 让内容生产变快了，但也让站点风格变得难以统一。</p>
+      <div class="compare">
+        <div class="card bad">
+          <h3>😵 现在的做法</h3>
+          <p>每个页面由 AI 独立生成，导航栏、侧边栏、页脚各写各的，风格、间距、配色全都不一样。想统一改一次，要动几十个文件。</p>
+        </div>
+        <div class="card good">
+          <h3>✨ 换一种做法</h3>
+          <p>AI 只负责写内容。发布前把同一份模板注入每个页面的 <code>&lt;/body&gt;</code> 前，布局与风格由模板统一接管，内容样式互不干扰。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心机制 -->
+  <section style="background: var(--soft);">
+    <div class="wrap">
+      <h2>核心机制：Shadow DOM + Slot</h2>
+      <p class="sub">页面只有内容，模板负责布局，浏览器原生隔离。</p>
+      <div class="mechanism">
+        <div>
+          <pre class="code"><span class="c">&lt;!-- 每个页面：只有内容，没有 header / 侧边栏 / footer --&gt;</span>
+&lt;body&gt;
+  &lt;main class="content"&gt;
+    &lt;h1&gt;页面标题&lt;/h1&gt;
+    &lt;article&gt;页面正文…&lt;/article&gt;
+  &lt;/main&gt;
+  <span class="c">&lt;!-- 注入的站点模板 --&gt;</span>
+  <span class="t">&lt;template</span> <span class="a">shadowrootmode</span>=<span class="s">"open"</span><span class="t">&gt;</span>
+    &lt;h3&gt;网站标题&lt;/h3&gt;
+    &lt;nav&gt;通用侧边栏导航&lt;/nav&gt;
+    &lt;slot&gt;&lt;/slot&gt;  <span class="c">&lt;!-- 内容投影到这里 --&gt;</span>
+    &lt;footer&gt;© 网站版权&lt;/footer&gt;
+  <span class="t">&lt;/template&gt;</span>
+&lt;/body&gt;</pre>
+        </div>
+        <div>
+          <div class="card">
+            <h3>样式双向隔离</h3>
+            <p>模板里的样式进不了页面内容，页面里的样式也进不了模板。你不用担心 AI 写的 CSS 把导航栏搞乱，也不用担心模板样式覆盖正文。</p>
+          </div>
+          <div class="card" style="margin-top:16px;">
+            <h3>零工具链</h3>
+            <p>不引入构建器、不引入运行时。只是在发布前把一段字符串塞进 HTML 文件，剩下的交给浏览器。</p>
+          </div>
+          <div class="card" style="margin-top:16px;">
+            <h3>模板可复用、可换肤</h3>
+            <p>一个板块准备一套模板就够。换一套模板文件，整站风格立即切换——这就是"一键换肤"。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 特性 -->
+  <section>
+    <div class="wrap">
+      <h2>它解决什么问题</h2>
+      <p class="sub">对内容创作者、模板作者、集成者都友好。</p>
+      <div class="features">
+        <div class="feature">
+          <div class="ico">🎨</div>
+          <h3>创作自由</h3>
+          <p>AI 不用再关心站点风格，专心把内容写好就行。页面里想怎么排版、怎么加样式都可以。</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🧱</div>
+          <h3>样式隔离</h3>
+          <p>基于浏览器原生 Shadow DOM，模板与内容互不污染。不需要 BEM、CSS Module、命名空间这些约定。</p>
+        </div>
+        <div class="feature">
+          <div class="ico">⚡</div>
+          <h3>零依赖</h3>
+          <p>没有构建步骤，没有运行时 JS。静态托管在任何地方都能跑，加载即渲染。</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🧩</div>
+          <h3>模板生态</h3>
+          <p>模板是纯文本文件，可以被分享、收集、交易。一个精良的模板，能直接服务成千上万个页面。</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🤖</div>
+          <h3>AI 友好</h3>
+          <p>提示词里只需告诉 AI "写内容，不要写 header / 侧边栏 / footer"，剩下的事交给构建流程。</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🔁</div>
+          <h3>可逆可换</h3>
+          <p>模板就是一段可替换的字符串。想换风格？替换掉那段即可。想回滚？删掉那段即可。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 三步 -->
+  <section style="background: var(--soft);">
+    <div class="wrap">
+      <h2>三步上手</h2>
+      <p class="sub">不需要学新工具，用你现有的发布流程即可。</p>
+      <div class="steps">
+        <div class="step">
+          <h3>写内容</h3>
+          <p>让 AI 生成页面，只保留 <code>&lt;main&gt;</code> 里的内容，去掉 header / 侧边栏 / footer。</p>
+        </div>
+        <div class="step">
+          <h3>准备模板</h3>
+          <p>把站点的 header、导航、footer 写成一个 <code>&lt;template shadowrootmode="open"&gt;</code> 文件。</p>
+        </div>
+        <div class="step">
+          <h3>发布前注入</h3>
+          <p>在你的发布流程里，把模板字符串插到每个 HTML 的 <code>&lt;/body&gt;</code> 之前，完成。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 文档入口 -->
+  <section>
+    <div class="wrap">
+      <h2>文档</h2>
+      <p class="sub">从内容创作者的角度出发，一步步讲清楚怎么用。</p>
+      <div class="docgrid">
+        <a class="doc" href="quick-start.html">
+          <h3>快速开始 →</h3>
+          <p>5 分钟跑通一个最小示例。</p>
+        </a>
+        <a class="doc" href="concept.html">
+          <h3>核心概念 →</h3>
+          <p>Shadow DOM 与 Slot 是怎么隔离样式、投影内容的。</p>
+        </a>
+        <a class="doc" href="page-structure.html">
+          <h3>页面怎么写 →</h3>
+          <p>页面只写什么、不写什么，有哪些约定。</p>
+        </a>
+        <a class="doc" href="ai-workflow.html">
+          <h3>配合 AI 工作 →</h3>
+          <p>提示词模板与工作流建议。</p>
+        </a>
+        <a class="doc" href="template-anatomy.html">
+          <h3>模板结构解析 →</h3>
+          <p>一份好模板由哪些部分组成。</p>
+        </a>
+        <a class="doc" href="inject.html">
+          <h3>如何注入 →</h3>
+          <p>手动、脚本、构建链路三种方式。</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  © 2026 静态网站构建器 · Static Site Builder, and with AI
+</footer>
+
+</body>
+</html>
