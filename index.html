@@ -155,6 +155,7 @@
     padding: 28px 24px; text-align: center;
     color: var(--muted); font-size: 13px;
   }
+  .dev-hidden { display: none; }
 
   @media (max-width: 860px) {
     .compare, .mechanism, .features, .steps, .docgrid { grid-template-columns: 1fr; }
@@ -166,11 +167,11 @@
 <body>
 
 <header class="site-head">
-  <a class="brand" href="index.html">静态网站构建器 <small>Static Site Builder</small></a>
+  <a class="brand" href="/">静态网站构建器</a>
   <nav>
     <a href="/basic/start.html">快速开始</a>
     <a href="/basic/concept.html">核心概念</a>
-    <a href="faq.html">FAQ</a>
+    <a href="/basic/faq.html">FAQ</a>
   </nav>
 </header>
 
@@ -328,19 +329,23 @@
           <h3>核心概念 →</h3>
           <p>Shadow DOM 与 Slot 是怎么隔离样式、投影内容的。</p>
         </a>
-        <a class="doc" href="page-structure.html">
+        <a class="doc" href="/basic/faq.html">
+          <h3>FAQ 问题解答 →</h3>
+          <p>关于使用方式、原理、兼容性与模板生态的常见疑问。</p>
+        </a>
+        <a class="doc dev-hidden" href="page-structure.html">
           <h3>页面怎么写 →</h3>
           <p>页面只写什么、不写什么，有哪些约定。</p>
         </a>
-        <a class="doc" href="ai-workflow.html">
+        <a class="doc dev-hidden" href="ai-workflow.html">
           <h3>配合 AI 工作 →</h3>
           <p>提示词模板与工作流建议。</p>
         </a>
-        <a class="doc" href="template-anatomy.html">
+        <a class="doc dev-hidden" href="template-anatomy.html">
           <h3>模板结构解析 →</h3>
           <p>一份好模板由哪些部分组成。</p>
         </a>
-        <a class="doc" href="inject.html">
+        <a class="doc dev-hidden" href="inject.html">
           <h3>如何注入 →</h3>
           <p>手动、脚本、构建链路三种方式。</p>
         </a>
